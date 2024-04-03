@@ -1,5 +1,6 @@
 package com.programming.techie.orderservice.service;
 
+import com.netflix.discovery.EurekaClient;
 import com.programming.techie.orderservice.dto.InventoryResponse;
 import com.programming.techie.orderservice.dto.OrderLineItemsDto;
 import com.programming.techie.orderservice.dto.OrderRequest;
@@ -19,7 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
+    private final EurekaClient eurekaClient;
 
     @Transactional
     public void placeOrder(OrderRequest orderRequest){
@@ -53,8 +55,9 @@ public class OrderService {
     }
 
     private boolean checkInStockProducts(List<String> skuCodes){
-        InventoryResponse[] response = webClient.get()
-                .uri("http://localhost:8082/api/inventory",
+
+        InventoryResponse[] response = webClientBuilder.build().get()
+                .uri("http://inventory-service/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("skuCodes", skuCodes).build())
                 .retrieve()
                 .bodyToMono(InventoryResponse[].class)
