@@ -4,6 +4,7 @@ import com.programming.techie.productservice.dto.ProductRequest;
 import com.programming.techie.productservice.dto.ProductResponse;
 import com.programming.techie.productservice.model.Product;
 import com.programming.techie.productservice.repository.ProductRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public void createProduct(ProductRequest productRequest){
+    public void createProduct(@NonNull final ProductRequest productRequest){
         Product product = Product.builder()
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())

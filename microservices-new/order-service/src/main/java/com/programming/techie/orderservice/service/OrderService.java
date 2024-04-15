@@ -24,7 +24,7 @@ public class OrderService {
     private final EurekaClient eurekaClient;
 
     @Transactional
-    public void placeOrder(OrderRequest orderRequest){
+    public String placeOrder(OrderRequest orderRequest){
         List<OrderLineItems> orderLineItemsList = orderRequest
                 .getOrderLineItemsDtoList()
                 .stream()
@@ -41,6 +41,7 @@ public class OrderService {
 
         if(response){
             orderRepository.save(order);
+            return "Order created successfully";
         }
         else{
             throw new IllegalArgumentException("Product is not in stock, please try again later");
