@@ -4,10 +4,12 @@ import com.netflix.discovery.EurekaClient;
 import com.programming.techie.orderservice.dto.InventoryResponse;
 import com.programming.techie.orderservice.dto.OrderLineItemsDto;
 import com.programming.techie.orderservice.dto.OrderRequest;
+import com.programming.techie.orderservice.event.OrderPlacedEvent;
 import com.programming.techie.orderservice.model.Order;
 import com.programming.techie.orderservice.model.OrderLineItems;
 import com.programming.techie.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,6 +24,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClientBuilder;
     private final EurekaClient eurekaClient;
+    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
     @Transactional
     public String placeOrder(OrderRequest orderRequest){
@@ -41,6 +44,7 @@ public class OrderService {
 
         if(response){
             orderRepository.save(order);
+            kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber()));
             return "Order created successfully";
         }
         else{
